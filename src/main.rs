@@ -1,5 +1,7 @@
 use argh::FromArgs;
 
+mod block;
+
 #[derive(FromArgs, Debug)]
 /// An optimizing brainfuck compiler.
 struct Args {
@@ -30,7 +32,7 @@ struct BFTree {
 #[derive(Debug)]
 enum BFBlock {
     Basic(Vec<BFToken>),
-    Loop(BFTree),
+    Loop(Vec<BFBlock>),
 }
 
 #[derive(Debug)]
@@ -55,7 +57,7 @@ impl BFTree {
                         blocks.push(BFBlock::Basic(cur_block));
                         cur_block = Vec::new();
                     }
-                    blocks.push(BFBlock::Loop(BFTree::from_byte_iter(iter)?))
+                    blocks.push(BFBlock::Loop(BFTree::from_byte_iter(iter)?.blocks))
                 }
                 b']' => {
                     if !cur_block.is_empty() {
